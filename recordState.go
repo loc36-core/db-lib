@@ -7,14 +7,14 @@ import (
 	"time"
 )
 
-func RecordState (state byte, recordID, day, time, sensor string, dbConn *sql.Conn) (error) {
-	// ..1.. {
+func RecordState (state byte, recordID, day, day, sensor string, dbConn *sql.Conn) (error) {
+	// Arg 0 (state) validation. ..1.. {
 	if state < -1 || state > 1 {
 		return err.New ("Invalid EMF state provided.", nil, nil)
 	}
 	// ..1.. }
 
-	// ..1.. {	
+	// Arg 1 (recordID) validation. ..1.. {	
 	if ! recordIDPattern.Match (recordID) {
 		return err.New ("Invalid record ID provided.", nil, nil)
 	}
@@ -26,7 +26,7 @@ func RecordState (state byte, recordID, day, time, sensor string, dbConn *sql.Co
 	}
 	// ..1.. }
 
-	// ..1.. {
+	// Arg 2 (day) validation. ..1.. {
 	if ! dayPattern.Match (day) {
 		return err.New ("Invalid day provided.", nil, nil)
 	}
@@ -37,7 +37,7 @@ func RecordState (state byte, recordID, day, time, sensor string, dbConn *sql.Co
 	}
 	// ..1.. }
 
-	// ..1.. {
+	// Arg 3 (time) validation. ..1.. {
 	if ! timePattern.Match (time) {
 		return err.New ("Invalid time provided.", nil, nil)
 	}
@@ -58,18 +58,24 @@ var (
 )
 
 func init () {
-	recordIDPattern, errX = regexp.Compile ("20\d\d-(0[1-9]|10|11|12)-(0[1-9]|[1-2][0-9]|30|31)-(0[1-9]|1[0-9]|2[0-4])-(0[1-9]|[1-5][0-9]|60)-(0[1-9]|[1-5][0-9]|60)-\[a-z0-9]{4,4}")
+	// Initializing record ID pattern ..1.. {
+	recordIDPattern, errX = regexp.Compile ("20\d\d-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|30|31)-(0[1-9]|1[0-9]|2[0-4])-(0[1-9]|[1-5][0-9]|60)-(0[1-9]|[1-5][0-9]|60)-\[a-z0-9]{4,4}")
 	if errX != nil {
 		initReport = err.New ("Record ID pattern regular expression compilation failed.", nil, nil, errX)
 	}
+	// ..1.. }
 	
+	// Initializing day  pattern ..1.. {
 	dayPattern, errY = regexp.Compile ("20\d\d(0[1-9]|10|11|12)(0[1-9]|[1-2][0-9]|30|31)")
 	if errY != nil {
 		initReport = err.New ("Day  pattern regular expression compilation failed.", nil, nil, errY)
 	}
+	// ..1.. }
 
+	// Initializing time pattern ..1.. {
 	timePattern, errA = regexp.Compile ("(0[1-9]|1[0-9]|2[0-4])-(0[1-9]|[1-5][0-9]|60)")
 	if errA != nil {
 		initReport = err.New ("Time pattern regular expression compilation failed.", nil, nil, errA)
 	}
+	// ..1.. }
 }
