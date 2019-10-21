@@ -1,54 +1,76 @@
 package lib
 
 import (
+	"context"
 	"database/sql"
 	"gopkg.in/qamarian-dtp/err.v0" //v0.4.0
 	"strings"
 	"time"
 )
 
-func RecordState (state byte, recordID, day, day, sensor string, dbConn *sql.Conn) (error) {
+func RecordState (state byte, recordID, day, time, sensor string, dbConn *sql.Conn) (error) {
 	// Arg 0 (state) validation. ..1.. {
 	if state < -1 || state > 1 {
-		return err.New ("Invalid EMF state provided.", nil, nil)
+		return err.New ("Invalid arg 0 (EMF state) provided.", nil, nil)
 	}
 	// ..1.. }
 
 	// Arg 1 (recordID) validation. ..1.. {	
 	if ! recordIDPattern.Match (recordID) {
-		return err.New ("Invalid record ID provided.", nil, nil)
+		return err.New ("Invalid arg 1 (record ID) provided.", nil, nil)
 	}
 	r := strings.Split (recordID, "-")
 	formattedID := fmt.Sprintf ("%s-%s-%sT%s:%s:%sZ", r[0], r[1], r[2], r[3], r[4], r[5])
 	_, errX := time.Parse (time.RFC3339, formattedID)
 	if errX != nil {
-		return err.New ("Invalid record ID provided.", nil, nil, errX)
+		return err.New ("Invalid arg 1 (record ID) provided.", nil, nil, errX)
 	}
 	// ..1.. }
 
 	// Arg 2 (day) validation. ..1.. {
 	if ! dayPattern.Match (day) {
-		return err.New ("Invalid day provided.", nil, nil)
+		return err.New ("Invalid arg 2 (day) provided.", nil, nil)
 	}
 	formattedD := fmt.Sprintf ("%s-%s-%sT01:01:01Z", day[0:4], day[4:6], day[6:8])
 	_, errY := time.Parse (time.RFC3339, formattedD)
 	if errY != nil {
-		return err.New ("Invalid day provided.", nil, nil, errY)
+		return err.New ("Invalid arg 2 (day) provided.", nil, nil, errY)
 	}
 	// ..1.. }
 
 	// Arg 3 (time) validation. ..1.. {
 	if ! timePattern.Match (time) {
-		return err.New ("Invalid time provided.", nil, nil)
+		return err.New ("Invalid arg 3 (time) provided.", nil, nil)
 	}
 	formattedT := fmt.Sprintf ("2019-01-01T%s:%s:01Z", time[0:2], time[2:4])
 	_, errZ := time.Parse (time.RFC3339, formattedT)
 	if errZ != nil {
-		return err.New ("Invalid time provided.", nil, nil, errZ)
+		return err.New ("Invalid arg 3 (time) provided.", nil, nil, errZ)
 	}
 	// ..1.. }
 
+	// Arg 4 (time) validation. ..1.. {
+	if sensor == "" {
+		return err.New ("Invalid arg 4 (sensor) provided.", nil, nil)
+	}
+	// ..1.. }
 
+	// Arg 5 (time) validation. ..1.. {
+	if dbConn == nil {
+		return err.New ("Nil arg 5 (database connection) provided.", nil, nil)
+	}
+	// ..1.. }
+
+	// Recording state into database. ..1.. {
+	instruction := `INSERT INTO state (record_id, state, day, time, sensor)
+		VALUES (?, ?, ?, ?, ?)`
+	_, errA := dbConn.Exec (context.Backgroud (), instruction, recordID, state, day, time, sensor)
+	if errA != nil {
+		return err.New ("Unable to record state into database.", nil, nil)
+	}
+	// ..1.. }
+
+	return nil
 }
 
 var (
