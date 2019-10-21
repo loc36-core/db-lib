@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+// RecordState () records the state of a sensor into the database. Recording of states of sensors should always be done via this function. The purpose of the existence of this function, is to ensure invalid data are never intentionally or accidentally recorded into the database.
 func RecordState (state byte, recordID, day, time, sensor string, dbConn *sql.Conn) (error) {
 	// Arg 0 (state) validation. ..1.. {
 	if state < -1 || state > 1 {
