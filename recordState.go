@@ -9,7 +9,7 @@ import (
 )
 
 // RecordState () records the state of a sensor into the database. Recording of states of sensors should always be done via this function. The purpose of the existence of this function, is to ensure invalid data are never intentionally or accidentally recorded into the database.
-func RecordState (state byte, recordID, day, time, sensor string, dbConn *sql.Conn) (error) {
+func RecordState (state int, recordID, day, time, sensor string, dbConn *sql.Conn) (error) {
 	// Arg 0 (state) validation. ..1.. {
 	if state < -1 || state > 1 {
 		return err.New ("Invalid arg 0 (EMF state) provided.", nil, nil)
@@ -50,13 +50,13 @@ func RecordState (state byte, recordID, day, time, sensor string, dbConn *sql.Co
 	}
 	// ..1.. }
 
-	// Arg 4 (time) validation. ..1.. {
+	// Arg 4 (sensor) validation. ..1.. {
 	if sensor == "" {
 		return err.New ("Invalid arg 4 (sensor) provided.", nil, nil)
 	}
 	// ..1.. }
 
-	// Arg 5 (time) validation. ..1.. {
+	// Arg 5 (dbConn) validation. ..1.. {
 	if dbConn == nil {
 		return err.New ("Nil arg 5 (database connection) provided.", nil, nil)
 	}
@@ -81,24 +81,34 @@ var (
 )
 
 func init () {
+	if initReport != nil {
+		return
+	}
+
 	// Initializing record ID pattern. ..1.. {
+	var errX error
 	recordIDPattern, errX = regexp.Compile ("^20\d\d-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-([0-1][0-9]|2[0-3])-([0-5][0-9])-([0-5][0-9])-[a-z0-9]{4,4}$")
 	if errX != nil {
 		initReport = err.New ("Record ID pattern regular expression compilation failed.", nil, nil, errX)
+		return
 	}
 	// ..1.. }
 	
 	// Initializing day  pattern. ..1.. {
+	var errY error
 	dayPattern, errY = regexp.Compile ("^20\d\d(0[1-9]|1[0-2])(0[1-9]|[1-2][0-9]|3[0-1])$")
 	if errY != nil {
 		initReport = err.New ("Day  pattern regular expression compilation failed.", nil, nil, errY)
+		return
 	}
 	// ..1.. }
 
 	// Initializing time pattern. ..1.. {
+	var errA error
 	timePattern, errA = regexp.Compile ("^([0-1][0-9]|2[0-3])([0-5][0-9])$")
 	if errA != nil {
 		initReport = err.New ("Time pattern regular expression compilation failed.", nil, nil, errA)
+		return
 	}
 	// ..1.. }
 }
