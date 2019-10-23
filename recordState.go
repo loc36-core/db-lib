@@ -81,22 +81,22 @@ var (
 )
 
 func init () {
-	// Initializing record ID pattern ..1.. {
-	recordIDPattern, errX = regexp.Compile ("20\d\d-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|30|31)-(0[1-9]|1[0-9]|2[0-4])-(0[1-9]|[1-5][0-9]|60)-(0[1-9]|[1-5][0-9]|60)-\[a-z0-9]{4,4}")
+	// Initializing record ID pattern. ..1.. {
+	recordIDPattern, errX = regexp.Compile ("^20\d\d-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-([0-1][0-9]|2[0-3])-([0-5][0-9])-([0-5][0-9])-[a-z0-9]{4,4}$")
 	if errX != nil {
 		initReport = err.New ("Record ID pattern regular expression compilation failed.", nil, nil, errX)
 	}
 	// ..1.. }
 	
-	// Initializing day  pattern ..1.. {
-	dayPattern, errY = regexp.Compile ("20\d\d(0[1-9]|10|11|12)(0[1-9]|[1-2][0-9]|30|31)")
+	// Initializing day  pattern. ..1.. {
+	dayPattern, errY = regexp.Compile ("^20\d\d(0[1-9]|1[0-2])(0[1-9]|[1-2][0-9]|3[0-1])$")
 	if errY != nil {
 		initReport = err.New ("Day  pattern regular expression compilation failed.", nil, nil, errY)
 	}
 	// ..1.. }
 
-	// Initializing time pattern ..1.. {
-	timePattern, errA = regexp.Compile ("(0[1-9]|1[0-9]|2[0-4])-(0[1-9]|[1-5][0-9]|60)")
+	// Initializing time pattern. ..1.. {
+	timePattern, errA = regexp.Compile ("^([0-1][0-9]|2[0-3])([0-5][0-9])$")
 	if errA != nil {
 		initReport = err.New ("Time pattern regular expression compilation failed.", nil, nil, errA)
 	}
